@@ -1,20 +1,42 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">
   <h1>
-    Welcome to {{ title }}!
+    <img src="assets/KaazingLogo.png">
+    <br>{{ title }}
   </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
 </div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
+<div class="flex-container">
+    <div *ngFor="let item of stocksArray" [className]="item.isLarge ? 'flex-item-large' : 'flex-item'">
+      <div class="sym">{{item.name}}</div>
+      <!--div class="desc">{{item.name}}</div-->
+      <div *ngIf="item.chartType != 'total' && item.chartType != 'pie'" [className]="item.isHigher ? 'higherPrice' : 'lowerPrice'">{{item.value}} {{item.unit}}</div>
+      <div *ngIf="item.chartType == 'line'" id="chart{{item.sym}}" class="chart">
+          <svg width="280" height="185" >
+              <polyline
+                  fill="#79f"
+                  stroke="#99a"
+                  stroke-width="2"
+                  [attr.points]="item.chart"/>
+            </svg>
+      </div>
+      <div *ngIf="item.chartType == 'bar'" id="chart{{item.sym}}" class="chart">
+          <svg width="280" height="185" >
+              <polyline
+                  fill="none"
+                  stroke="#7f9"
+                  stroke-width="12"
+                  [attr.points]="item.chart"/>
+            </svg>
+      </div>
+      <div *ngIf="item.chartType == 'dial'" id="chart{{item.sym}}">
+        <svg style="width: 280px; height: 185px;">
+          <path fill="#444" d="M140 130 20 129.99999999999997 A120 120 0 0 1 260 130Z"></path>
+          <path [attr.fill]="item.fill" [attr.d]="item.chart"></path>
+          <path fill="#444" d="M140 130 56 130 A84 84 0 0 1 224 130Z"></path>
+          <path fill="black" d="M140 130 60 130 A80 80 0 0 1 220 130Z"></path>
+        </svg>
+      </div>
+      <div *ngIf="item.chartType == 'total'"  class="totalChart">{{item.value}} {{item.unit}}</div>
+    </div>
+</div>
+
 
