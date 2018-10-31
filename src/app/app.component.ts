@@ -8,15 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   
-  //stocksList = {};
   stocksArray:any[] = [];
   stockIndexList = {};
   stockCharts = {};
-  //somestrings:string[] = []; //??
 
   ngOnInit() {
-
-      //var stocks = this.stocksList;
       var stocksArray = this.stocksArray;
       var stockIndexList = this.stockIndexList;
       var stockCharts = this.stockCharts;
@@ -48,7 +44,6 @@ export class AppComponent implements OnInit {
         if (chartData === undefined) {
           chartData = {};
           chartData['rawPrices'] = [];
-          //stockChartData['normalisedPrices'] = [];
           chartData['min'] = value;
           chartData['max'] = value;
 
@@ -57,19 +52,14 @@ export class AppComponent implements OnInit {
 
         var rawPrices = chartData['rawPrices'];
         rawPrices.push(value);
-        //console.log("price="+price);
+     
         if (!isBar && rawPrices.length > numPricesInChart) rawPrices.shift();
         else if (isBar && rawPrices.length > numPricesInBarChart) rawPrices.shift();
-
-        //if (price > stockChartData['max']) stockChartData['max'] = price;
-        //if (price < stockChartData['min']) stockChartData['min'] = price;
 
         chartData['max'] = Math.max.apply(null, rawPrices);
         chartData['min'] = Math.min.apply(null, rawPrices);
 
-
         //Run through and normalize prices to make them fit into chart height
-        //var normalisedPrices = [];
         var min = chartData['min'];
         var max = chartData['max'];
         var diff = max-min;
@@ -80,12 +70,10 @@ export class AppComponent implements OnInit {
         }
         var chartx = 0;
         for (var i=0; i<rawPrices.length; i++) {
-          //console.log("rawPrices[i]="+rawPrices[i]);
-          //console.log("min="+min);
-          //console.log("diff="+diff);
+          var normalisedPrice;
+          if (diff != 0) normalisedPrice = ((rawPrices[i]-min)/diff)*svgChartHeight;
+          else normalisedPrice = 0;
 
-          var normalisedPrice = ((rawPrices[i]-min)/diff)*svgChartHeight;
-          //normalisedPrices[i] = (rawPrices[i]-min)/diff;
           if (!isBar) {
             chartPoints += ""+chartx+","+Math.floor(svgChartHeight-normalisedPrice)+"\n";
             chartx = chartx + (svgChartWidth/numPricesInChart);
@@ -103,23 +91,11 @@ export class AppComponent implements OnInit {
           chartPoints += "0,"+svgChartHeight+"\n";
         }
 
-        //console.log(chartPoints);
         return chartPoints;
-        //stockChartData['normalisedPrices'] = normalisedPrices;
       }
-
-
-      /*
-      let source = new EventSource('https://app.example.com/stocks');
-      source.addEventListener('message', message => {
-          //this.myData = JSON.parse(message.data); 
-          console.log(message.data)       
-      });
-      */
       
       let source = new EventSource('https://app.example.com/sysmon');
       source.addEventListener('message', message => {
-        //console.log(message.data);
 
         let dataJson = JSON.parse((message as any).data);  //Sometimes ng serve would compain that data was not an object on this type, so this casts it to "any"
         dataJson.value = parseFloat(dataJson.value).toFixed(2);
@@ -127,25 +103,12 @@ export class AppComponent implements OnInit {
         //See if the object is already in the list
         if (stockIndexList[dataJson.name] != undefined) {
           var oldValue = stocksArray[stockIndexList[dataJson.name]].value;
-          //stocks[dataJson.name] = dataJson;
           stocksArray[stockIndexList[dataJson.name]] = dataJson;
 
-          //Add chart
-          
-          //var chart="<svg id='svg"+stockJson.sym+"' width='100' height='40' class='chart'></svg>";
-          //chart += "<polyline fill='none' stroke='#0074d9' stroke-width='3' points='"
-          //var chart = "0,12\n";
-          //chart += "2,6\n";
-          //chart += "4,8\n";
-          //chart += "6,2\n";
-          //chart += "'/>";
-          
+          //Add chart  
           if (dataJson.chartType == "dial") {
             if (dataJson.value > 100) dataJson.value = 100;
-            //dataJson.chart = addValueToGauge(dataJson.name, dataJson.value);
             dataJson.chart = getSectorPath(140, 130, 240, Math.floor(((100-dataJson.value)/100)*180), 180);
-            //dataJson.innerchart = getSectorPath(140, 130, 180, 0, 180);
- 
             dataJson.fill = getColorForGauge(dataJson.value/100);
             
           }
@@ -156,11 +119,8 @@ export class AppComponent implements OnInit {
             dataJson.chart = addValueToLineChart(dataJson.name, dataJson.value, true); //chart;
           }
           else if (dataJson.chartType == "pie") {
-            //dataJson.chart = addValueToLineChart(dataJson.name, dataJson.value); //chart;
+            //TODO
           }
-
-          //document.getElementById("chart"+stockJson.sym).innerHTML = chart;
-          //console.log(document.getElementById("chart"+stockJson.sym));
 
           //See if new price is higher or lower
           if (oldValue > dataJson.value) {
@@ -172,8 +132,6 @@ export class AppComponent implements OnInit {
         }
         else {
           //Add it
-          //stocks[dataJson.name] = dataJson;
-          //stockIndexList[dataJson.name] = stocksArray.length;
           stocksArray.push(dataJson);
 
           //Sort the array
@@ -193,10 +151,7 @@ export class AppComponent implements OnInit {
             stockIndexList[data.name] = i;
           }
         }
-        //stocksArray[0] = stockJson;
-
       }, false);
-      
   }
   title = 'System Monitoring Demo';
 }
